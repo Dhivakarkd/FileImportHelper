@@ -1,4 +1,4 @@
-package com.dhivakar.filetransferhelper;
+package com.dhivakar.filetransferhelper.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

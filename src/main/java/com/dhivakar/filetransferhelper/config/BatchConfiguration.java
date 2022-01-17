@@ -1,6 +1,9 @@
-package com.dhivakar.filetransferhelper;
+package com.dhivakar.filetransferhelper.config;
 
 
+import com.dhivakar.filetransferhelper.model.ImportDetail;
+import com.dhivakar.filetransferhelper.processor.ImportProcessor;
+import com.dhivakar.filetransferhelper.listener.JobCompletionListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 @Configuration
 @EnableBatchProcessing
@@ -33,7 +37,7 @@ public class BatchConfiguration {
     @Bean
     public FlatFileItemReader<ImportDetail> reader() {
         return new FlatFileItemReaderBuilder<ImportDetail>()
-                .name("personItemReader")
+                .name("ImportDetailItemReader")
                 .resource(new ClassPathResource("last-import-data.csv"))
                 .delimited()
                 .names(new String[]{"month", "date"})
@@ -52,38 +56,27 @@ public class BatchConfiguration {
     @Bean
     public FlatFileItemWriter<ImportDetail> writer()
     {
+        BeanWrapperFieldExtractor<ImportDetail> fieldExtractor = new BeanWrapperFieldExtractor<>();
+        fieldExtractor.setNames(new String[] {"month", "date"});
+        fieldExtractor.afterPropertiesSet();
 
-        //Create writer instance
-        FlatFileItemWriter<ImportDetail> writer = new FlatFileItemWriter<>();
+        DelimitedLineAggregator<ImportDetail> lineAggregator = new DelimitedLineAggregator<>();
+        lineAggregator.setDelimiter(",");
+        lineAggregator.setFieldExtractor(fieldExtractor);
 
-        //Set output file location
-        writer.setResource(new ClassPathResource("last-export-data.csv"));
+        FlatFileItemWriter<ImportDetail> flatFileItemWriter = new FlatFileItemWriter<>();
+        flatFileItemWriter.setName("ImportDetailItemWriter");
+        flatFileItemWriter.setResource(new FileSystemResource("test-outputs/ExportDetails.csv"));
+        flatFileItemWriter.setLineAggregator(lineAggregator);
+        flatFileItemWriter.setAppendAllowed(true);
 
-
-
-        //All job repetitions should "append" to same output file
-        writer.setAppendAllowed(true);
-
-
-        //Name field values sequence based on object properties
-        writer.setLineAggregator(new DelimitedLineAggregator<ImportDetail>() {
-            {
-                setDelimiter(",");
-                setFieldExtractor(new BeanWrapperFieldExtractor<ImportDetail>() {
-                    {
-                        setNames(new String[] { "month", "date" });
-
-                    }
-                });
-            }
-        });
-        return writer;
+        return flatFileItemWriter;
     }
 
     @Bean
     public Job readCSVFilesJob(JobCompletionListener listener) {
         return jobBuilderFactory
-                .get("Read CSV Job")
+                .get("Read Last Imported Date from File")
                 .listener(listener)
                 .incrementer(new RunIdIncrementer())
                 .start(step1())
