@@ -3,6 +3,8 @@ package com.dhivakar.filetransferhelper.model;
 import com.dhivakar.filetransferhelper.exception.ValidationException;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class ProcessingDetail {
 
@@ -69,4 +71,18 @@ public class ProcessingDetail {
 
         return sb.toString();
     }
+
+    public String toStringWithTimeStamp() {
+        final StringBuilder sb = new StringBuilder("\nProcessing Details for Folder : ");
+        sb.append(source_folder).append('\n');
+        sb.append("Total Number of Files : ").append(total_files).append("\n");
+        sb.append("Number of Moved Files : ").append(no_of_files_moved).append("\n");
+        sb.append("Number of Skipped Files : ").append(no_of_files_skipped).append("\n");
+        sb.append("Number of Already Existing Files : ").append(no_of_files_already_exist).append("\n");
+        sb.append("Processing Completed At : " + LocalDateTime.now());
+
+        return sb.toString();
+    }
+
+
 }

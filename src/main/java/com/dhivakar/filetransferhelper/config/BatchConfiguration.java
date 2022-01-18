@@ -18,6 +18,7 @@ import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -26,17 +27,22 @@ import org.springframework.core.io.FileSystemResource;
 @EnableBatchProcessing
 public class BatchConfiguration {
 
+    @Value("${import.path}")
+    private String importDataPath;
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
+    @Value("${export.path}")
+    private String exportPath;
 
     @Bean
     public FlatFileItemReader<ImportDetail> reader() {
+        System.out.println("Import Data Path is " + importDataPath);
         return new FlatFileItemReaderBuilder<ImportDetail>()
                 .name("ImportDetailItemReader")
-                .resource(new FileSystemResource("test-outputs/last-import-data.csv"))
+                .resource(new FileSystemResource(importDataPath))
                 .delimited()
                 .names("month", "date")
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<ImportDetail>() {{
@@ -50,7 +56,7 @@ public class BatchConfiguration {
     public FlatFileItemWriter<String> importDetailsWriter() {
         return new FlatFileItemWriterBuilder<String>()
                 .name("importDetailsWriter")
-                .resource(new FileSystemResource("test-outputs/ExportDetails.txt"))
+                .resource(new FileSystemResource(exportPath))
                 .lineAggregator(new PassThroughLineAggregator<>())
                 .append(true)
                 .build();

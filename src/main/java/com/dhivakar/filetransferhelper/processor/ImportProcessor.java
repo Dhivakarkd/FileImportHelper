@@ -48,7 +48,6 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
 
             if (listOfFiles != null && listOfFiles.length > 0) {
                 Files.createDirectories(Paths.get(target_folder));
-                System.out.println("No of files " + listOfFiles.length);
                 processingDetail = startProcessingFiles(item, source_folder, target_folder, listOfFiles);
                 processingDetail.validateTotalCount();
 
@@ -63,7 +62,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         }
 
         log.info(finalDetail.toString());
-        return finalDetail.toString();
+        return finalDetail.toStringWithTimeStamp();
     }
 
     private void updateFinalDetailRecord(ProcessingDetail finalDetail, ProcessingDetail processingDetail) {

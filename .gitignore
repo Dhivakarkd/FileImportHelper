@@ -38,3 +38,4 @@ out/
 /logs/**
 /test-outputs/**
 /file-transfer-helper-0.0.1-SNAPSHOT.jar
+/prod-outputs/
