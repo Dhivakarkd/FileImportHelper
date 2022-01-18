@@ -3,4 +3,4 @@
 </p>
 
 # File Import Helper
-File Importer Helper is a file transfer utility to automate transfering particular files from given source and destination using batch jobs
+File Import Helper is a file transfer utility to automate transfering particular files from given source and destination using batch jobs
