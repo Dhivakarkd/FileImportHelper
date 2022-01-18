@@ -32,8 +32,8 @@ public class LinesWriter implements Tasklet, StepExecutionListener {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-
-        if(StringUtils.equalsIgnoreCase("dev",env)) {
+        System.out.println("Value is "+env);
+        if(!StringUtils.equalsIgnoreCase("dev",env)) {
             log.debug("Latest Import Date is Updated");
             writeLine(new ImportDetail(LocalDate.now().getMonth().name(), LocalDate.now().toString()));
         }else{
