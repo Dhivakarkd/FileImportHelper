@@ -1,7 +1,9 @@
 package com.dhivakar.filetransferhelper.model;
 
 import com.dhivakar.filetransferhelper.exception.ValidationException;
+import lombok.Getter;
 
+@Getter
 public class ProcessingDetail {
 
     private String source_folder;
@@ -33,11 +35,27 @@ public class ProcessingDetail {
 
     public void validateTotalCount() throws ValidationException {
 
-        int process_total = no_of_files_moved + no_of_files_skipped +no_of_files_already_exist;
+        int process_total = no_of_files_moved + no_of_files_skipped + no_of_files_already_exist;
 
-        if( process_total != total_files){
-                throw new ValidationException("Validation Failed with "+process_total+"Processed Files and "+total_files+" Total Files");
+        if (process_total != total_files) {
+            throw new ValidationException("Validation Failed with " + process_total + "Processed Files and " + total_files + " Total Files");
         }
+    }
+
+    public void setTotalFiles(int total_files) {
+        this.total_files = this.total_files + total_files;
+    }
+
+    public void setNoOfFilesMoved(int no_of_files_moved) {
+        this.no_of_files_moved = this.no_of_files_moved + no_of_files_moved;
+    }
+
+    public void setNoOfFilesSkipped(int no_of_files_skipped) {
+        this.no_of_files_skipped = this.no_of_files_skipped + no_of_files_skipped;
+    }
+
+    public void setNoOfFilesAlreadyExist(int no_of_files_already_exist) {
+        this.no_of_files_already_exist = this.no_of_files_already_exist + no_of_files_already_exist;
     }
 
     @Override

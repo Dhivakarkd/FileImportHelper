@@ -32,12 +32,12 @@ public class LinesWriter implements Tasklet, StepExecutionListener {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        System.out.println("Value is "+env);
-        if(!StringUtils.equalsIgnoreCase("dev",env)) {
+
+        if (StringUtils.equalsIgnoreCase("prod", env)) {
             log.debug("Latest Import Date is Updated");
             writeLine(new ImportDetail(LocalDate.now().getMonth().name(), LocalDate.now().toString()));
-        }else{
-            log.info("Dev Mode is Active \"Skipping\" Updating Import Details");
+        } else {
+            log.info("Dev/Test Mode is Active \"Skipping\" Updating Import Details");
         }
         return RepeatStatus.FINISHED;
     }
@@ -45,7 +45,9 @@ public class LinesWriter implements Tasklet, StepExecutionListener {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         try {
-            initWriter();
+            if (StringUtils.equalsIgnoreCase("prod", env)) {
+                initWriter();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,8 +55,10 @@ public class LinesWriter implements Tasklet, StepExecutionListener {
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        closeWriter();
-        log.debug("Line Writer ended.");
+        if (StringUtils.equalsIgnoreCase("prod", env)) {
+            closeWriter();
+            log.debug("Line Writer ended.");
+        }
         return ExitStatus.COMPLETED;
     }
 

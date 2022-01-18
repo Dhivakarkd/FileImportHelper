@@ -29,32 +29,48 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
     @Override
     public String process(ImportDetail item) throws IOException, ValidationException {
 
+        String[] source = source_folder_path.split(",");
 
+        ProcessingDetail finalDetail = new ProcessingDetail("All Folders", 0);
         log.info("Last Imported Date is {}", item.getDate());
 
-        String source_folder = StringUtils.substringAfterLast(source_folder_path, "/");
-        File folder = new File(source_folder_path);
+        for (String source_path : source) {
 
-        String target_folder = target_main_folder + source_folder + File.separator;
+            String source_folder = StringUtils.substringAfterLast(source_path, "/");
+            File folder = new File(source_path);
+
+            String target_folder = target_main_folder + source_folder + File.separator;
 
 
-        File[] listOfFiles = folder.listFiles();
+            File[] listOfFiles = folder.listFiles(File::isFile);
 
-        ProcessingDetail processingDetail;
+            ProcessingDetail processingDetail;
 
-        if (listOfFiles != null && listOfFiles.length > 0) {
-            Files.createDirectories(Paths.get(target_folder));
-            processingDetail = startProcessingFiles(item, source_folder, target_folder, listOfFiles);
-            processingDetail.validateTotalCount();
-            return processingDetail.toString();
-        }else{
-            log.info("No Data Available in Folder to Import");
-            processingDetail = new ProcessingDetail(source_folder,0);
-            log.debug(processingDetail.toString());
-            return processingDetail.toString();
+            if (listOfFiles != null && listOfFiles.length > 0) {
+                Files.createDirectories(Paths.get(target_folder));
+                System.out.println("No of files " + listOfFiles.length);
+                processingDetail = startProcessingFiles(item, source_folder, target_folder, listOfFiles);
+                processingDetail.validateTotalCount();
+
+                updateFinalDetailRecord(finalDetail, processingDetail);
+
+            } else {
+                log.info("No Data Available in Folder to Import");
+                processingDetail = new ProcessingDetail(source_folder, 0);
+                log.debug(processingDetail.toString());
+
+            }
         }
 
+        log.info(finalDetail.toString());
+        return finalDetail.toString();
+    }
 
+    private void updateFinalDetailRecord(ProcessingDetail finalDetail, ProcessingDetail processingDetail) {
+        finalDetail.setTotalFiles(processingDetail.getTotal_files());
+        finalDetail.setNoOfFilesAlreadyExist(processingDetail.getNo_of_files_already_exist());
+        finalDetail.setNoOfFilesSkipped(processingDetail.getNo_of_files_skipped());
+        finalDetail.setNoOfFilesMoved(processingDetail.getNo_of_files_moved());
     }
 
     private ProcessingDetail startProcessingFiles(ImportDetail item, String source_folder, String target_folder, File[] listOfFiles) throws IOException {
