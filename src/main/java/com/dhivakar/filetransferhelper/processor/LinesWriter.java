@@ -22,6 +22,8 @@ import java.time.LocalDate;
 @Slf4j
 public class LinesWriter implements Tasklet, StepExecutionListener {
 
+    @Value("${import.path}")
+    private String importDataPath;
     private CSVWriter csvWriter;
     private FileWriter fileWriter;
     private File file;
@@ -64,8 +66,7 @@ public class LinesWriter implements Tasklet, StepExecutionListener {
 
     private void initWriter() throws IOException {
         if (file == null) {
-            file = new FileSystemResource("test-outputs/last-import-data.csv").getFile();
-
+            file = new FileSystemResource(importDataPath).getFile();
         }
 
 
