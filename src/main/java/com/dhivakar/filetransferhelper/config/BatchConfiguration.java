@@ -5,6 +5,7 @@ import com.dhivakar.filetransferhelper.listener.JobCompletionListener;
 import com.dhivakar.filetransferhelper.model.ImportDetail;
 import com.dhivakar.filetransferhelper.processor.ImportProcessor;
 import com.dhivakar.filetransferhelper.processor.LinesWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -25,6 +26,7 @@ import org.springframework.core.io.FileSystemResource;
 
 @Configuration
 @EnableBatchProcessing
+@Slf4j
 public class BatchConfiguration {
 
     @Value("${import.path}")
@@ -39,7 +41,7 @@ public class BatchConfiguration {
 
     @Bean
     public FlatFileItemReader<ImportDetail> reader() {
-        System.out.println("Import Data Path is " + importDataPath);
+        log.debug("Import Data Path is {}", importDataPath);
         return new FlatFileItemReaderBuilder<ImportDetail>()
                 .name("ImportDetailItemReader")
                 .resource(new FileSystemResource(importDataPath))
@@ -96,7 +98,7 @@ public class BatchConfiguration {
     @Bean
     protected Step updateLatestImportDate() {
         return stepBuilderFactory
-                .get("updateLatestImportDate")
+                .get("Update Latest Import Date")
                 .tasklet(linesWriter())
                 .build();
     }

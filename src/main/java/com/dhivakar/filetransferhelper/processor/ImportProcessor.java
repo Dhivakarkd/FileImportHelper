@@ -3,7 +3,9 @@ package com.dhivakar.filetransferhelper.processor;
 import com.dhivakar.filetransferhelper.exception.ValidationException;
 import com.dhivakar.filetransferhelper.model.ImportDetail;
 import com.dhivakar.filetransferhelper.model.ProcessingDetail;
+import com.dhivakar.filetransferhelper.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +63,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
             }
         }
 
-        log.info(finalDetail.toString());
+        log.info(finalDetail.toStringWithTimeStamp());
         return finalDetail.toStringWithTimeStamp();
     }
 
@@ -70,6 +72,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         finalDetail.setNoOfFilesAlreadyExist(processingDetail.getNo_of_files_already_exist());
         finalDetail.setNoOfFilesSkipped(processingDetail.getNo_of_files_skipped());
         finalDetail.setNoOfFilesMoved(processingDetail.getNo_of_files_moved());
+        finalDetail.setNoOfInvalidExtensionFile(processingDetail.getNo_of_files_invalid_ext());
     }
 
     private ProcessingDetail startProcessingFiles(ImportDetail item, String source_folder, String target_folder, File[] listOfFiles) throws IOException {
@@ -93,22 +96,29 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
     }
 
     private void importFilesToTarget(String target_folder, ProcessingDetail processingDetail, LocalDate lastImportedDate, File file) throws IOException {
-        LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
 
-        LocalDate localDate = dateTime.toLocalDate();
+        String file_ext = FilenameUtils.getExtension(file.getName());
 
-        if (localDate.isAfter(lastImportedDate)) {
+        if (FileUtil.validateExtension(file_ext)) {
+            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
 
-            Path path = Paths.get(target_folder + file.getName());
-            try {
-                Files.copy(file.toPath(), path, StandardCopyOption.COPY_ATTRIBUTES);
-                processingDetail.incrementMovedFileCounter();
-            } catch (FileAlreadyExistsException e) {
-                log.error("File : {} Already Exist ", file.getName());
-                processingDetail.incrementAlreadyExistingFileCounter();
+            LocalDate localDate = dateTime.toLocalDate();
+
+            if (localDate.isAfter(lastImportedDate)) {
+
+                Path path = Paths.get(target_folder + file.getName());
+                try {
+                    Files.copy(file.toPath(), path, StandardCopyOption.COPY_ATTRIBUTES);
+                    processingDetail.incrementMovedFileCounter();
+                } catch (FileAlreadyExistsException e) {
+                    log.error("File : {} Already Exist ", file.getName());
+                    processingDetail.incrementAlreadyExistingFileCounter();
+                }
+            } else {
+                processingDetail.incrementSkippedFileCounter();
             }
         } else {
-            processingDetail.incrementSkippedFileCounter();
+            processingDetail.incrementInvalidExtensionFileCounter();
         }
     }
 }
