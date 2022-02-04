@@ -83,6 +83,8 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
 
         LocalDate lastImportedDate = LocalDate.parse(item.getDate(), DateTimeFormatter.ISO_LOCAL_DATE);
 
+        // TO include the file which may be created after the imported data on the same
+        lastImportedDate = lastImportedDate.minusDays(1);
 
         for (File file : listOfFiles) {
 
