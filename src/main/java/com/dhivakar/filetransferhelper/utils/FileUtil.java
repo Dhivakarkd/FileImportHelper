@@ -5,7 +5,7 @@ import java.util.List;
 
 public class FileUtil {
 
-    public static final List<String> list = Arrays.asList("jpg", "png", "mp4");
+    private static final List<String> list = Arrays.asList("jpg", "png", "mp4");
 
     private FileUtil() {
     }

@@ -8,89 +8,89 @@ import java.time.LocalDateTime;
 @Getter
 public class ProcessingDetail {
 
-    private String source_folder;
-    private int total_files;
-    private int no_of_files_moved;
-    private int no_of_files_skipped;
-    private int no_of_files_already_exist;
-    private int no_of_files_invalid_ext;
+    private String sourceFolder;
+    private int totalFiles;
+    private int noOfFilesMoved;
+    private int noOfFilesSkipped;
+    private int noOfFilesAlreadyExist;
+    private int noOfFilesInvalidExt;
 
-    public ProcessingDetail(String source_folder,int total_files) {
-        this.source_folder = source_folder;
-        this.total_files = total_files;
-        this.no_of_files_moved = 0;
-        this.no_of_files_skipped = 0;
-        this.no_of_files_already_exist = 0;
-        this.no_of_files_invalid_ext = 0;
+    public ProcessingDetail(String sourceFolder, int totalFiles) {
+        this.sourceFolder = sourceFolder;
+        this.totalFiles = totalFiles;
+        this.noOfFilesMoved = 0;
+        this.noOfFilesSkipped = 0;
+        this.noOfFilesAlreadyExist = 0;
+        this.noOfFilesInvalidExt = 0;
     }
 
-    public void incrementMovedFileCounter(){
-        this.no_of_files_moved++;
+    public void incrementMovedFileCounter() {
+        this.noOfFilesMoved++;
     }
 
     public void incrementSkippedFileCounter() {
-        this.no_of_files_skipped++;
+        this.noOfFilesSkipped++;
     }
 
     public void incrementAlreadyExistingFileCounter() {
-        this.no_of_files_already_exist++;
+        this.noOfFilesAlreadyExist++;
     }
 
     public void incrementInvalidExtensionFileCounter() {
-        this.no_of_files_invalid_ext++;
+        this.noOfFilesInvalidExt++;
     }
 
 
     public void validateTotalCount() throws ValidationException {
 
-        int process_total = no_of_files_moved + no_of_files_skipped + no_of_files_already_exist + no_of_files_invalid_ext;
+        int processTotal = noOfFilesMoved + noOfFilesSkipped + noOfFilesAlreadyExist + noOfFilesInvalidExt;
 
-        if (process_total != total_files) {
-            throw new ValidationException("Validation Failed with " + process_total + "Processed Files and " + total_files + " Total Files");
+        if (processTotal != totalFiles) {
+            throw new ValidationException("Validation Failed with " + processTotal + "Processed Files and " + totalFiles + " Total Files");
         }
     }
 
-    public void setTotalFiles(int total_files) {
-        this.total_files = this.total_files + total_files;
+    public void setTotalFiles(int totalFiles) {
+        this.totalFiles = this.totalFiles + totalFiles;
     }
 
-    public void setNoOfFilesMoved(int no_of_files_moved) {
-        this.no_of_files_moved = this.no_of_files_moved + no_of_files_moved;
+    public void setNoOfFilesMoved(int noOfFilesMoved) {
+        this.noOfFilesMoved = this.noOfFilesMoved + noOfFilesMoved;
     }
 
-    public void setNoOfFilesSkipped(int no_of_files_skipped) {
-        this.no_of_files_skipped = this.no_of_files_skipped + no_of_files_skipped;
+    public void setNoOfFilesSkipped(int noOfFilesSkipped) {
+        this.noOfFilesSkipped = this.noOfFilesSkipped + noOfFilesSkipped;
     }
 
-    public void setNoOfFilesAlreadyExist(int no_of_files_already_exist) {
-        this.no_of_files_already_exist = this.no_of_files_already_exist + no_of_files_already_exist;
+    public void setNoOfFilesAlreadyExist(int noOfFilesAlreadyExist) {
+        this.noOfFilesAlreadyExist = this.noOfFilesAlreadyExist + noOfFilesAlreadyExist;
     }
 
-    public void setNoOfInvalidExtensionFile(int no_of_files_invalid_ext) {
-        this.no_of_files_invalid_ext = this.no_of_files_invalid_ext + no_of_files_invalid_ext;
+    public void setNoOfInvalidExtensionFile(int noOfFilesInvalidExt) {
+        this.noOfFilesInvalidExt = this.noOfFilesInvalidExt + noOfFilesInvalidExt;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("\nProcessing Details for Folder : ");
-        sb.append(source_folder).append("\n");
-        sb.append("Number of Moved Files : ").append(no_of_files_moved).append("\n");
-        sb.append("Number of Skipped Files : ").append(no_of_files_skipped).append("\n");
-        sb.append("Number of Already Existing Files : ").append(no_of_files_already_exist).append("\n");
-        sb.append("Number of Invalid Extension Files : ").append(no_of_files_invalid_ext).append("\n");
-        sb.append("Total Number of Files : ").append(total_files).append("\n");
+        sb.append(sourceFolder).append("\n");
+        sb.append("Number of Moved Files : ").append(noOfFilesMoved).append("\n");
+        sb.append("Number of Skipped Files : ").append(noOfFilesSkipped).append("\n");
+        sb.append("Number of Already Existing Files : ").append(noOfFilesAlreadyExist).append("\n");
+        sb.append("Number of Invalid Extension Files : ").append(noOfFilesInvalidExt).append("\n");
+        sb.append("Total Number of Files : ").append(totalFiles).append("\n");
 
         return sb.toString();
     }
 
     public String toStringWithTimeStamp() {
         final StringBuilder sb = new StringBuilder("\nProcessing Details for Folder : ");
-        sb.append(source_folder).append('\n');
-        sb.append("Number of Moved Files : ").append(no_of_files_moved).append("\n");
-        sb.append("Number of Skipped Files : ").append(no_of_files_skipped).append("\n");
-        sb.append("Number of Already Existing Files : ").append(no_of_files_already_exist).append("\n");
-        sb.append("Number of Invalid Extension Files : ").append(no_of_files_invalid_ext).append("\n");
-        sb.append("Total Number of Files : ").append(total_files).append("\n");
+        sb.append(sourceFolder).append('\n');
+        sb.append("Number of Moved Files : ").append(noOfFilesMoved).append("\n");
+        sb.append("Number of Skipped Files : ").append(noOfFilesSkipped).append("\n");
+        sb.append("Number of Already Existing Files : ").append(noOfFilesAlreadyExist).append("\n");
+        sb.append("Number of Invalid Extension Files : ").append(noOfFilesInvalidExt).append("\n");
+        sb.append("Total Number of Files : ").append(totalFiles).append("\n");
         sb.append("Processing Completed At : ").append(LocalDateTime.now());
 
         return sb.toString();

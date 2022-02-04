@@ -23,25 +23,25 @@ import java.time.format.DateTimeFormatter;
 public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
 
     @Value("${import.source.name}")
-    String source_folder_path;
+    String sourceFolderPath;
     @Value("${import.target.name}")
-    String target_main_folder;
+    String targetMainFolder;
 
 
     @Override
     public String process(ImportDetail item) throws IOException, ValidationException {
 
-        String[] source = source_folder_path.split(",");
+        String[] source = sourceFolderPath.split(",");
 
         ProcessingDetail finalDetail = new ProcessingDetail("All Folders", 0);
         log.info("Last Imported Date is {}", item.getDate());
 
         for (String source_path : source) {
 
-            String source_folder = StringUtils.substringAfterLast(source_path, "/");
+            String sourceFolder = StringUtils.substringAfterLast(source_path, "/");
             File folder = new File(source_path);
 
-            String target_folder = target_main_folder + source_folder + File.separator;
+            String targetFolder = targetMainFolder + sourceFolder + File.separator;
 
 
             File[] listOfFiles = folder.listFiles(File::isFile);
@@ -49,15 +49,15 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
             ProcessingDetail processingDetail;
 
             if (listOfFiles != null && listOfFiles.length > 0) {
-                Files.createDirectories(Paths.get(target_folder));
-                processingDetail = startProcessingFiles(item, source_folder, target_folder, listOfFiles);
+                Files.createDirectories(Paths.get(targetFolder));
+                processingDetail = startProcessingFiles(item, sourceFolder, targetFolder, listOfFiles);
                 processingDetail.validateTotalCount();
 
                 updateFinalDetailRecord(finalDetail, processingDetail);
 
             } else {
                 log.info("No Data Available in Folder to Import");
-                processingDetail = new ProcessingDetail(source_folder, 0);
+                processingDetail = new ProcessingDetail(sourceFolder, 0);
                 log.debug(processingDetail.toString());
 
             }
@@ -68,17 +68,17 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
     }
 
     private void updateFinalDetailRecord(ProcessingDetail finalDetail, ProcessingDetail processingDetail) {
-        finalDetail.setTotalFiles(processingDetail.getTotal_files());
-        finalDetail.setNoOfFilesAlreadyExist(processingDetail.getNo_of_files_already_exist());
-        finalDetail.setNoOfFilesSkipped(processingDetail.getNo_of_files_skipped());
-        finalDetail.setNoOfFilesMoved(processingDetail.getNo_of_files_moved());
-        finalDetail.setNoOfInvalidExtensionFile(processingDetail.getNo_of_files_invalid_ext());
+        finalDetail.setTotalFiles(processingDetail.getTotalFiles());
+        finalDetail.setNoOfFilesAlreadyExist(processingDetail.getNoOfFilesAlreadyExist());
+        finalDetail.setNoOfFilesSkipped(processingDetail.getNoOfFilesSkipped());
+        finalDetail.setNoOfFilesMoved(processingDetail.getNoOfFilesMoved());
+        finalDetail.setNoOfInvalidExtensionFile(processingDetail.getNoOfFilesInvalidExt());
     }
 
-    private ProcessingDetail startProcessingFiles(ImportDetail item, String source_folder, String target_folder, File[] listOfFiles) throws IOException {
-        log.info("Started Importing Folder \"{}\" with {} elements", source_folder, listOfFiles.length);
+    private ProcessingDetail startProcessingFiles(ImportDetail item, String sourceFolder, String targetFolder, File[] listOfFiles) throws IOException {
+        log.info("Started Importing Folder \"{}\" with {} elements", sourceFolder, listOfFiles.length);
 
-        ProcessingDetail processingDetail = new ProcessingDetail(source_folder, listOfFiles.length);
+        ProcessingDetail processingDetail = new ProcessingDetail(sourceFolder, listOfFiles.length);
 
 
         LocalDate lastImportedDate = LocalDate.parse(item.getDate(), DateTimeFormatter.ISO_LOCAL_DATE);
@@ -89,7 +89,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         for (File file : listOfFiles) {
 
             if (file.isFile()) {
-                importFilesToTarget(target_folder, processingDetail, lastImportedDate, file);
+                importFilesToTarget(targetFolder, processingDetail, lastImportedDate, file);
             }
 
         }
@@ -97,18 +97,18 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         return processingDetail;
     }
 
-    private void importFilesToTarget(String target_folder, ProcessingDetail processingDetail, LocalDate lastImportedDate, File file) throws IOException {
+    private void importFilesToTarget(String targetFolder, ProcessingDetail processingDetail, LocalDate lastImportedDate, File file) throws IOException {
 
-        String file_ext = FilenameUtils.getExtension(file.getName());
+        String fileExt = FilenameUtils.getExtension(file.getName());
 
-        if (FileUtil.validateExtension(file_ext)) {
+        if (FileUtil.validateExtension(fileExt)) {
             LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
 
             LocalDate localDate = dateTime.toLocalDate();
 
             if (localDate.isAfter(lastImportedDate)) {
 
-                Path path = Paths.get(target_folder + file.getName());
+                Path path = Paths.get(targetFolder + file.getName());
                 try {
                     Files.copy(file.toPath(), path, StandardCopyOption.COPY_ATTRIBUTES);
                     processingDetail.incrementMovedFileCounter();
