@@ -40,6 +40,7 @@ public class BatchConfiguration {
     private String exportPath;
 
     @Bean
+
     public FlatFileItemReader<ImportDetail> reader() {
         log.debug("Import Data Path is {}", importDataPath);
         return new FlatFileItemReaderBuilder<ImportDetail>()
