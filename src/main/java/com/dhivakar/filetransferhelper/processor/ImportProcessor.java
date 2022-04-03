@@ -1,14 +1,17 @@
 package com.dhivakar.filetransferhelper.processor;
 
+import com.dhivakar.filetransferhelper.database.model.BatchInfo;
+import com.dhivakar.filetransferhelper.database.model.ImportRecord;
 import com.dhivakar.filetransferhelper.exception.ValidationException;
-import com.dhivakar.filetransferhelper.model.ImportDetail;
 import com.dhivakar.filetransferhelper.model.ProcessingDetail;
 import com.dhivakar.filetransferhelper.utils.FileUtil;
+import com.dhivakar.filetransferhelper.utils.ImportRecordDecorator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +20,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Slf4j
-public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
+@Component
+public class ImportProcessor implements ItemProcessor<BatchInfo, ImportRecord> {
 
     @Value("${import.source.name}")
     String sourceFolderPath;
@@ -29,12 +32,12 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
 
 
     @Override
-    public String process(ImportDetail item) throws IOException, ValidationException {
+    public ImportRecord process(BatchInfo item) throws IOException, ValidationException {
 
         String[] source = sourceFolderPath.split(",");
 
         ProcessingDetail finalDetail = new ProcessingDetail("All Folders", 0);
-        log.info("Last Imported Date is {}", item.getDate());
+        log.info("Last Imported Date is {}", item.getImportDate());
 
         for (String source_path : source) {
 
@@ -50,7 +53,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
 
             if (listOfFiles != null && listOfFiles.length > 0) {
                 Files.createDirectories(Paths.get(targetFolder));
-                processingDetail = startProcessingFiles(item, sourceFolder, targetFolder, listOfFiles);
+                processingDetail = startProcessingFiles(item.getImportDate(), sourceFolder, targetFolder, listOfFiles);
                 processingDetail.validateTotalCount();
 
                 updateFinalDetailRecord(finalDetail, processingDetail);
@@ -64,7 +67,7 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         }
 
         log.info(finalDetail.toStringWithTimeStamp());
-        return finalDetail.toStringWithTimeStamp();
+        return ImportRecordDecorator.convertToImportRecord(finalDetail, item.getBatchId());
     }
 
     private void updateFinalDetailRecord(ProcessingDetail finalDetail, ProcessingDetail processingDetail) {
@@ -75,13 +78,11 @@ public class ImportProcessor implements ItemProcessor<ImportDetail, String> {
         finalDetail.setNoOfInvalidExtensionFile(processingDetail.getNoOfFilesInvalidExt());
     }
 
-    private ProcessingDetail startProcessingFiles(ImportDetail item, String sourceFolder, String targetFolder, File[] listOfFiles) throws IOException {
+    private ProcessingDetail startProcessingFiles(LocalDate lastImportedDate, String sourceFolder, String targetFolder, File[] listOfFiles) throws IOException {
         log.info("Started Importing Folder \"{}\" with {} elements", sourceFolder, listOfFiles.length);
 
         ProcessingDetail processingDetail = new ProcessingDetail(sourceFolder, listOfFiles.length);
 
-
-        LocalDate lastImportedDate = LocalDate.parse(item.getDate(), DateTimeFormatter.ISO_LOCAL_DATE);
 
         // TO include the file which may be created after the imported data on the same
         lastImportedDate = lastImportedDate.minusDays(1);

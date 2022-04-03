@@ -15,7 +15,7 @@ public class DatabaseConfiguration {
     @Profile("dev")
     public DataSource devDataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/ImportDBDev");
         dataSource.setUsername("dhiva_dev");
         dataSource.setPassword("devmysql");
@@ -27,7 +27,7 @@ public class DatabaseConfiguration {
     @Profile("prod")
     public DataSource prodDataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/ImportDB");
         dataSource.setUsername("dhiva_dev");
         dataSource.setPassword("devmysql");

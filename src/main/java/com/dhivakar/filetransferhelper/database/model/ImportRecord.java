@@ -1,37 +1,41 @@
 package com.dhivakar.filetransferhelper.database.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "IMPORT_DETAIL")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ImportRecord {
 
     @Column(name = "BATCH_ID")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer batchId;
     @Column(name = "EXPORT_DATE")
-    @CreatedDate
     private LocalDate exportDate;
     @Column(name = "FILES_COPIED")
-    private String filesCopied;
+    private Integer filesCopied;
     @Column(name = "FILES_SKIPPED")
-    private String filesSkipped;
+    private Integer filesSkipped;
     @Column(name = "ALREADY_EXISTED_FILES")
-    private String alreadyExistedFiles;
+    private Integer alreadyExistedFiles;
     @Column(name = "INVALID_FILES")
-    private String invalidExtensionFiles;
+    private Integer invalidExtensionFiles;
     @Column(name = "TOTAL_FILES_SCANNED")
-    private String totalFilesScanned;
+    private Integer totalFilesScanned;
     @Column(name = "RECORD_UPDATED_TS")
-    @CreationTimestamp
     private LocalDateTime recordUpdatedTs;
 }
