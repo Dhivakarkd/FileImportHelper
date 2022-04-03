@@ -1,107 +1,65 @@
 package com.dhivakar.filetransferhelper.config;
 
 
+import com.dhivakar.filetransferhelper.database.handler.CustomDataReader;
+import com.dhivakar.filetransferhelper.database.model.BatchInfo;
+import com.dhivakar.filetransferhelper.database.model.ImportRecord;
 import com.dhivakar.filetransferhelper.listener.JobCompletionListener;
-import com.dhivakar.filetransferhelper.model.ImportDetail;
+import com.dhivakar.filetransferhelper.listener.NoWorkListener;
 import com.dhivakar.filetransferhelper.processor.ImportProcessor;
-import com.dhivakar.filetransferhelper.processor.LinesWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 
 @Configuration
 @EnableBatchProcessing
 @Slf4j
 public class BatchConfiguration {
 
-    @Value("${import.path}")
-    private String importDataPath;
+    private StepBuilderFactory stepBuilderFactory;
+    private CustomDataReader customDataReader;
+    private CompositeItemWriter<ImportRecord> compositeItemWriter;
+    private ImportProcessor filesProcessor;
     @Autowired
-    public JobBuilderFactory jobBuilderFactory;
+    private NoWorkListener noWorkListener;
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-    @Value("${export.path}")
-    private String exportPath;
-
-    @Bean
-    public FlatFileItemReader<ImportDetail> reader() {
-        log.debug("Import Data Path is {}", importDataPath);
-        return new FlatFileItemReaderBuilder<ImportDetail>()
-                .name("ImportDetailItemReader")
-                .resource(new FileSystemResource(importDataPath))
-                .delimited()
-                .names("month", "date")
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<ImportDetail>() {{
-                    setTargetType(ImportDetail.class);
-                }})
-                .build();
-    }
-
-
-    @Bean
-    public FlatFileItemWriter<String> importDetailsWriter() {
-        return new FlatFileItemWriterBuilder<String>()
-                .name("importDetailsWriter")
-                .resource(new FileSystemResource(exportPath))
-                .lineAggregator(new PassThroughLineAggregator<>())
-                .append(true)
-                .build();
-    }
-
-    @Bean
-    public ImportProcessor processor() {
-        return new ImportProcessor();
-    }
-
-    @Bean
-    public LinesWriter linesWriter() {
-        return new LinesWriter();
-    }
-
-
-    @Bean
-    public Job latestFilesImportJob(JobCompletionListener listener) {
-        return jobBuilderFactory
-                .get("Analyze and Copy Latest Files")
-                .listener(listener)
-                .incrementer(new RunIdIncrementer())
-                .start(readAndCopyFiles())
-                .next(updateLatestImportDate())
-                .build();
+    public BatchConfiguration(StepBuilderFactory stepBuilderFactory, CustomDataReader customDataReader, CompositeItemWriter<ImportRecord> compositeItemWriter, ImportProcessor filesProcessor) {
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.customDataReader = customDataReader;
+        this.compositeItemWriter = compositeItemWriter;
+        this.filesProcessor = filesProcessor;
     }
 
     @Bean
     public Step readAndCopyFiles() {
-        return stepBuilderFactory.get("Read and Copy Files").<ImportDetail, String>chunk(5)
-                .reader(reader())
-                .processor(processor())
-                .writer(importDetailsWriter())
+
+        return this.stepBuilderFactory.get("Read and Copy Files").<BatchInfo, ImportRecord>chunk(5)
+                .reader(customDataReader)
+                .processor(filesProcessor)
+                .writer(compositeItemWriter)
+                .listener(noWorkListener)
                 .build();
     }
 
     @Bean
-    protected Step updateLatestImportDate() {
-        return stepBuilderFactory
-                .get("Update Latest Import Date")
-                .tasklet(linesWriter())
+    public Job analyzeAndCopyLatestFilesJob(JobBuilderFactory jobBuilderFactory, JobCompletionListener listener) {
+
+        return jobBuilderFactory.get("Analyze and Copy Latest Files")
+                .incrementer(new RunIdIncrementer())
+                .listener(listener)
+                .start(readAndCopyFiles()).on(ExitStatus.FAILED.getExitCode()).fail()
+                .from(readAndCopyFiles()).on(ExitStatus.COMPLETED.getExitCode()).end().build()
                 .build();
     }
-
 
 }
