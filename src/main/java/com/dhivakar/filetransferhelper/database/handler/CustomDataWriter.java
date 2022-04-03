@@ -26,7 +26,7 @@ public class CustomDataWriter {
     public JdbcBatchItemWriter<ImportRecord> importDbWriter() {
         JdbcBatchItemWriter<ImportRecord> itemWriter = new JdbcBatchItemWriter<>();
         itemWriter.setDataSource(dataSource);
-        itemWriter.setSql("INSERT INTO ImportDBDev.IMPORT_DETAIL\n" +
+        itemWriter.setSql("INSERT INTO IMPORT_DETAIL\n" +
                 "(BATCH_ID, EXPORT_DATE, FILES_COPIED, FILES_SKIPPED, ALREADY_EXISTED_FILES, INVALID_FILES, TOTAL_FILES_SCANNED, RECORD_UPDATED_TS)\n" +
                 "VALUES (:batchId, :exportDate, :filesCopied, :filesSkipped, :alreadyExistedFiles, :invalidExtensionFiles, :totalFilesScanned, :recordUpdatedTs)");
         itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
@@ -51,7 +51,7 @@ public class CustomDataWriter {
     public JdbcBatchItemWriter<ImportRecord> newBatchIfoWriter() {
         JdbcBatchItemWriter<ImportRecord> itemWriter = new JdbcBatchItemWriter<>();
         itemWriter.setDataSource(dataSource);
-        itemWriter.setSql("INSERT INTO ImportDBDev.BATCH_INFO\n" +
+        itemWriter.setSql("INSERT INTO BATCH_INFO\n" +
                 "(IMPORT_DATE, RECORD_UPDATED_TS, BATCH_STATUS)\n" +
                 "VALUES(:importDate, :recordUpdatedTs, :batchStatus);\n");
         itemWriter.setItemSqlParameterSourceProvider(item -> new MapSqlParameterSource()
