@@ -15,7 +15,7 @@ public class CustomDataReader extends JdbcCursorItemReader<BatchInfo> implements
 
     public CustomDataReader(DataSource dataSource) {
         setDataSource(dataSource);
-        setSql("SELECT * FROM BATCH_INFO WHERE BATCH_STATUS = 'PENDING' order by BATCH_ID desc limit 1");
+        setSql("SELECT * FROM BATCH_INFO WHERE BATCH_STATUS = 'PENDING' order by BATCH_ID desc");
         setFetchSize(2);
         setRowMapper(new BatchInfoRowMapper());
     }
