@@ -59,7 +59,7 @@ public class ImportProcessor implements ItemProcessor<BatchInfo, ImportRecord> {
                 updateFinalDetailRecord(finalDetail, processingDetail);
 
             } else {
-                log.info("No Data Available in Folder to Import");
+                log.info("No Data Available in {} to Import", sourceFolder);
                 processingDetail = new ProcessingDetail(sourceFolder, 0);
                 log.debug(processingDetail.toString());
 
