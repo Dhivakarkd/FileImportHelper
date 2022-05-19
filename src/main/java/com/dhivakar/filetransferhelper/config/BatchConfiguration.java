@@ -43,7 +43,7 @@ public class BatchConfiguration {
     @Bean
     public Step readAndCopyFiles() {
 
-        return this.stepBuilderFactory.get("Read and Copy Files").<BatchInfo, ImportRecord>chunk(5)
+        return this.stepBuilderFactory.get("Read and Copy Files").<BatchInfo, ImportRecord>chunk(1)
                 .reader(customDataReader)
                 .processor(filesProcessor)
                 .writer(compositeItemWriter)
