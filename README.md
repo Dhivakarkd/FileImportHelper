@@ -3,7 +3,9 @@
 </p>
 
 # File Import Helper
-File Import Helper is a file transfer utility to automate transfering particular files from given source and destination using batch jobs
+A File Transfer utility to automate file transfer between two devices. You can easily select the source device and destination folder
+
+- Supports batch operation. You can select several items to be transferred at once.
 
 ## To Build the Jar
 
