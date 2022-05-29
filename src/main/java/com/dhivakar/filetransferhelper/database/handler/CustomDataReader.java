@@ -34,6 +34,4 @@ public class CustomDataReader extends JdbcCursorItemReader<BatchInfo> implements
 
         }
     }
-
-
 }
