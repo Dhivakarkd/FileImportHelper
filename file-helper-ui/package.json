@@ -1,0 +1,23 @@
+{
+  "name": "file-helper-ui",
+  "version": "1.0.0",
+  "description": "UI for processing File helper API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dhivakarkd/FileImportHelper.git"
+  },
+  "keywords": [
+    "file",
+    "helper"
+  ],
+  "author": "Dhivakar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dhivakarkd/FileImportHelper/issues"
+  },
+  "homepage": "https://github.com/Dhivakarkd/FileImportHelper#readme"
+}
